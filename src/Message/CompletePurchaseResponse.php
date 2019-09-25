@@ -25,7 +25,7 @@ class CompletePurchaseResponse extends AbstractResponse
      */
     public function getTransactionId()
     {
-        return array_get($this->data, 'EDP_BILL_NO');
+        return array_get($this->data, 'Reference');
     }
 
     /**
@@ -34,6 +34,6 @@ class CompletePurchaseResponse extends AbstractResponse
      */
     public function getTransactionReference()
     {
-        return array_get($this->data, 'EDP_TRANS_ID');
+        return array_get($this->data, 'RequestTrace');
     }
 }

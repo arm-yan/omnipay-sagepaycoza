@@ -38,10 +38,8 @@ class CompletePurchaseRequest extends PurchaseRequest
      */
     protected function validatePrecheckRequest(ParameterBag $requestData)
     {
-        if ($requestData->has('EDP_BILL_NO') &&
-            $requestData->has('EDP_AMOUNT') &&
-            $requestData->get('EDP_PRECHECK') == 'YES' &&
-            $requestData->get('EDP_REC_ACCOUNT') == $this->getAccountId()) {
+        if ($requestData->has('Reference') &&
+            $requestData->has('Amount')) {
             die('OK');
         }
     }
@@ -62,24 +60,13 @@ class CompletePurchaseRequest extends PurchaseRequest
         $data['success'] = false;
 
         // Check for required request data
-        if ($requestData->has('EDP_PAYER_ACCOUNT') &&
-            $requestData->has('EDP_BILL_NO') &&
-            $requestData->has('EDP_REC_ACCOUNT') &&
-            $requestData->has('EDP_AMOUNT') &&
-            $requestData->has('EDP_TRANS_ID') &&
-            $requestData->has('EDP_CHECKSUM')) {
+        if ($requestData->has('Reference') &&
+            $requestData->has('Amount') &&
+            $requestData->has('RequestTrace')) {
 
-            // Generate string to hash for verification
-            $txtToHash = $this->getAccountId().':'.
-                $requestData->get('EDP_AMOUNT').':'.
-                $this->getSecretKey().':'.
-                $requestData->get('EDP_BILL_NO').':'.
-                $requestData->get('EDP_PAYER_ACCOUNT').':'.
-                $requestData->get('EDP_TRANS_ID').':'.
-                $requestData->get('EDP_TRANS_DATE');
 
             // Check hash against checksum and set success status
-            $data['success'] = strtoupper($requestData->get('EDP_CHECKSUM')) == strtoupper(md5($txtToHash));
+            $data['success'] = true;
         }
 
         return $data;
