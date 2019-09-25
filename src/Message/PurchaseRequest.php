@@ -10,71 +10,30 @@ use Omnipay\Common\Message\AbstractRequest;
  */
 class PurchaseRequest extends AbstractRequest
 {
+
     /**
-     * Sets the request language.
+     * Set the request dataset used by shopping carts
      *
      * @param string $value
      *
      * @return $this
      */
-    public function setLanguage($value)
+    public function setDataSet($value)
     {
-        return $this->setParameter('language', $value);
+        return $this->setParameter('dataSet', $value);
     }
 
     /**
-     * Get the request language.
-     * @return $this
+     * Get the request dataset
+     * @return mixed
      */
-    public function getLanguage()
+    public function getDataSet()
     {
-        return $this->getParameter('language');
+        return $this->getParameter('dataSet');
     }
 
     /**
-     * Sets the request account ID.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setAccountId($value)
-    {
-        return $this->setParameter('accountId', $value);
-    }
-
-    /**
-     * Get the request account ID.
-     * @return $this
-     */
-    public function getAccountId()
-    {
-        return $this->getParameter('accountId');
-    }
-
-    /**
-     * Sets the request secret key.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setSecretKey($value)
-    {
-        return $this->setParameter('secretKey', $value);
-    }
-
-    /**
-     * Get the request secret key.
-     * @return $this
-     */
-    public function getSecretKey()
-    {
-        return $this->getParameter('secretKey');
-    }
-
-    /**
-     * Sets the request email.
+     * Set the request email
      *
      * @param string $value
      *
@@ -86,8 +45,8 @@ class PurchaseRequest extends AbstractRequest
     }
 
     /**
-     * Get the request email.
-     * @return $this
+     * Get the request email
+     * @return mixed
      */
     public function getEmail()
     {
@@ -95,24 +54,150 @@ class PurchaseRequest extends AbstractRequest
     }
 
     /**
-     * Set custom data to get back as is
+     * Set the request phone
      *
-     * @param array $value
+     * @param string $value
      *
      * @return $this
      */
-    public function setCustomData(array $value)
+    public function setPhone($value)
     {
-        return $this->setParameter('customData', $value);
+        return $this->setParameter('phone', $value);
     }
 
     /**
-     * Get custom data
+     * Get the request phone
      * @return mixed
      */
-    public function getCustomData()
+    public function getPhone()
     {
-        return $this->getParameter('customData', []) ?? [];
+        return $this->getParameter('phone');
+    }
+
+    /**
+     * Set the request budget
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setBudget($value)
+    {
+        return $this->setParameter('dubget', $value);
+    }
+
+    /**
+     * Get the request budget
+     * @return mixed
+     */
+    public function getBudget()
+    {
+        return $this->getParameter('dubget');
+    }
+
+    /**
+     * Set the request Extra field one
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setExtraFieldOne($value)
+    {
+        return $this->setParameter('extraFieldOne', $value);
+    }
+
+    /**
+     * Get the request Extra field one
+     * @return mixed
+     */
+    public function getExtraFieldOne()
+    {
+        return $this->getParameter('extraFieldOne');
+    }
+
+    /**
+     * Set the request Extra field two
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setExtraFieldTwo($value)
+    {
+        return $this->setParameter('extraFieldTwo', $value);
+    }
+
+    /**
+     * Get the request Extra field two
+     * @return mixed
+     */
+    public function getExtraFieldTwo()
+    {
+        return $this->getParameter('extraFieldTwo');
+    }
+
+    /**
+     * Set the request Extra field three
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setExtraFieldThree($value)
+    {
+        return $this->setParameter('extraFieldThree', $value);
+    }
+
+    /**
+     * Get the request Extra field three
+     * @return mixed
+     */
+    public function getExtraFieldThree()
+    {
+        return $this->getParameter('extraFieldThree');
+    }
+
+    /**
+     * Sets the request Pay Now Service Key.
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setServiceKey($value)
+    {
+        return $this->setParameter('serviceKey', $value);
+    }
+
+    /**
+     * Get the request Pay Now Service Key.
+     * @return mixed
+     */
+    public function getServiceKey()
+    {
+        return $this->getParameter('serviceKey');
+    }
+
+    /**
+     * Sets the request Pay Now Vendor Key.
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setVendorKey($value)
+    {
+        return $this->setParameter('vendorKey', $value);
+    }
+
+    /**
+     * Get the request Pay Now Vendor Key.
+     * @return mixed
+     */
+    public function getVendorKey()
+    {
+        return $this->getParameter('vendorKey');
     }
 
     /**
@@ -121,16 +206,22 @@ class PurchaseRequest extends AbstractRequest
      */
     public function getData()
     {
-        $this->validate('language', 'amount', 'accountId', 'secretKey', 'email');
+        $this->validate('amount', 'serviceKey', 'vendorKey');
 
-        return array_merge($this->getCustomData(), [
-            'EDP_LANGUAGE'    => strtoupper($this->getLanguage()),
-            'EDP_REC_ACCOUNT' => $this->getAccountId(),
-            'EDP_DESCRIPTION' => $this->getDescription(),
-            'EDP_AMOUNT'      => $this->getAmount(),
-            'EDP_BILL_NO'     => $this->getTransactionId(),
-            'EDP_EMAIL'       => $this->getEmail(),
-        ]);
+        return  [
+            'm1'      => $this->getServiceKey(),
+            'm2'      => $this->getVendorKey(),
+            'p2'      => $this->getTransactionId(),
+            'p3'      => $this->getDescription(),
+            'p4'      => $this->getAmount(),
+            'Budget'  => $this->getBudget(),
+            'm4'      => $this->getExtraFieldOne(),
+            'm5'      => $this->getExtraFieldTwo(),
+            'm6'      => $this->getExtraFieldThree(),
+            'm9'      => $this->getEmail(),
+            'm11'     => $this->getPhone(),
+            'm10'     => $this->getDataSet(),
+        ];
     }
 
     /**
