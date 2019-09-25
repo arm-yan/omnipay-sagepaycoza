@@ -2,77 +2,139 @@
 
 namespace Omnipay\SagePay\Message;
 
-use Omnipay\SagePay\Helpers\ParametersTrait;
+use Omnipay\Common\Message\AbstractRequest;
 
 /**
- * SagePay Purchase Request
+ * Class PurchaseRequest
+ * @package Omnipay\SagePay\Message
  */
 class PurchaseRequest extends AbstractRequest
 {
-    use ParametersTrait;
-
     /**
-     * Prepare data to send
-     * @return array|mixed
+     * Sets the request language.
+     *
+     * @param string $value
+     *
+     * @return $this
      */
-    public function getData()
+    public function setLanguage($value)
     {
-        $this->validate('amount', 'currency',
-            'confirmationType', 'returnUrl');
-
-        $data = [
-            'amount'      => [
-                'value'    => $this->getAmount(),
-                'currency' => $this->getCurrency()
-            ],
-            'client_ip'   => $this->getClientIp(),
-            'description' => $this->getDescription()
-        ];
-
-        if ($this->getItems()) {
-            $data['receipt']['items'] = $this->getItems();
-
-            if ($this->getTaxSystemCode()) {
-                $data['receipt']['tax_system_code'] = $this->getTaxSystemCode();
-            }
-
-            if ($this->getPhone()) {
-                $data['receipt']['phone'] = $this->getPhone();
-            } elseif ($this->getEmail()) {
-                $data['receipt']['email'] = $this->getEmail();
-            }
-        }
-
-        if ($this->getConfirmationType()) {
-            $data['confirmation']['type'] = $this->getConfirmationType();
-            $data['confirmation']['return_url'] = $this->getReturnUrl();
-        }
-
-        if ($this->getGatewayId()) {
-            $data['recipient']['gateway_id'] = $this->getGatewayId();
-        }
-
-        if ($this->getPaymentMethodId()) {
-            $data['payment_method_id'] = $this->getPaymentMethodId();
-        }
-
-        if ($this->getSavePaymentMethod()) {
-            $data['save_payment_method'] = $this->getSavePaymentMethod();
-        }
-
-        if ($this->getCapture()) {
-            $data['capture'] = $this->getCapture();
-        }
-
-        if ($this->getMetadata()) {
-            $data['metadata'] = $this->getMetadata();
-        }
-
-        return $data;
+        return $this->setParameter('language', $value);
     }
 
     /**
-     * Send the request with specified data
+     * Get the request language.
+     * @return $this
+     */
+    public function getLanguage()
+    {
+        return $this->getParameter('language');
+    }
+
+    /**
+     * Sets the request account ID.
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setAccountId($value)
+    {
+        return $this->setParameter('accountId', $value);
+    }
+
+    /**
+     * Get the request account ID.
+     * @return $this
+     */
+    public function getAccountId()
+    {
+        return $this->getParameter('accountId');
+    }
+
+    /**
+     * Sets the request secret key.
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setSecretKey($value)
+    {
+        return $this->setParameter('secretKey', $value);
+    }
+
+    /**
+     * Get the request secret key.
+     * @return $this
+     */
+    public function getSecretKey()
+    {
+        return $this->getParameter('secretKey');
+    }
+
+    /**
+     * Sets the request email.
+     *
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setEmail($value)
+    {
+        return $this->setParameter('email', $value);
+    }
+
+    /**
+     * Get the request email.
+     * @return $this
+     */
+    public function getEmail()
+    {
+        return $this->getParameter('email');
+    }
+
+    /**
+     * Set custom data to get back as is
+     *
+     * @param array $value
+     *
+     * @return $this
+     */
+    public function setCustomData(array $value)
+    {
+        return $this->setParameter('customData', $value);
+    }
+
+    /**
+     * Get custom data
+     * @return mixed
+     */
+    public function getCustomData()
+    {
+        return $this->getParameter('customData', []) ?? [];
+    }
+
+    /**
+     * Prepare data to send
+     * @return array
+     */
+    public function getData()
+    {
+        $this->validate('language', 'amount', 'accountId', 'secretKey', 'email');
+
+        return array_merge($this->getCustomData(), [
+            'EDP_LANGUAGE'    => strtoupper($this->getLanguage()),
+            'EDP_REC_ACCOUNT' => $this->getAccountId(),
+            'EDP_DESCRIPTION' => $this->getDescription(),
+            'EDP_AMOUNT'      => $this->getAmount(),
+            'EDP_BILL_NO'     => $this->getTransactionId(),
+            'EDP_EMAIL'       => $this->getEmail(),
+        ]);
+    }
+
+    /**
+     * Send data and return response instance
      *
      * @param mixed $data
      *
@@ -80,8 +142,6 @@ class PurchaseRequest extends AbstractRequest
      */
     public function sendData($data)
     {
-        $response = $this->sagepay->createPayment($data);
-
-        return $this->response = new PurchaseResponse($this, $response);
+        return $this->response = new PurchaseResponse($this, $data);
     }
 }

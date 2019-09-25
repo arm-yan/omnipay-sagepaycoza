@@ -2,146 +2,86 @@
 
 namespace Omnipay\SagePay\Message;
 
+use Symfony\Component\HttpFoundation\ParameterBag;
+
 /**
- * SagePay Complete Purchase Request
+ * Class CompletePurchaseRequest
+ * @package Omnipay\SagePay\Message
  */
-class CompletePurchaseRequest extends AbstractRequest
+class CompletePurchaseRequest extends PurchaseRequest
 {
-
     /**
-     * Sets the request Account.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setAccount($value)
-    {
-        return $this->setParameter('account', $value);
-    }
-
-    /**
-     * Get the request Account.
-     * @return $this
-     */
-    public function getAccount()
-    {
-        return $this->getParameter('account');
-    }
-
-    /**
-     * Sets the request secret key.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setSecretKey($value)
-    {
-        return $this->setParameter('secretKey', $value);
-    }
-
-    /**
-     * Get the request secret key.
-     * @return $this
-     */
-    public function getSecretKey()
-    {
-        return $this->getParameter('secretKey');
-    }
-
-    /**
-     * Sets the request Amount
-     * @param $value
-     * @return mixed
-     */
-    public function setAmount($value)
-    {
-        return $this->setParameter('amount', $value);
-    }
-
-    /**
-     * Get Amount
-     * @return mixed
-     */
-    public function getAmount()
-    {
-        return $this->getParameter('amount');
-    }
-
-    /**
-     * Sets the request Currency
-     * @param $value
-     * @return mixed
-     */
-    public function setCurrency($value)
-    {
-        return $this->setParameter('currency', $value);
-    }
-
-    /**
-     * Get Currency
-     * @return mixed
-     */
-    public function getCurrency()
-    {
-        return $this->getParameter('currency');
-    }
-
-    /**
-     * Sets the request payment method ID.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setPaymentMethodId($value)
-    {
-        return $this->setParameter('paymentMethodId', $value);
-    }
-
-    /**
-     * Get the request payment method ID.
-     * @return $this
-     */
-    public function getPaymentMethodId()
-    {
-        return $this->getParameter('paymentMethodId');
-    }
-
-    /**
-     * Prepare data to send
-     * @return array|mixed
+     * Prepare and get data
+     * @return mixed|void
      */
     public function getData()
     {
-        $this->validate('amount', 'currency', 'paymentMethodId');
-
-        $data = [
-            'amount'   => [
-                'value'    => $this->getAmount(),
-                'currency' => $this->getCurrency()
-            ],
-            'paymentMethodId'  => $this->getPaymentMethodId()
-        ];
-
-        return $data;
+        return $this->validateRequest($this->httpRequest->request);
     }
 
     /**
-     * Send the request with specified data
+     * Send data and return response
      *
      * @param mixed $data
      *
-     * @return \Omnipay\Common\Message\ResponseInterface|\Omnipay\SagePay\Message\PurchaseResponse
+     * @return \Omnipay\Common\Message\ResponseInterface|\Omnipay\SagePay\Message\CompletePurchaseResponse
      */
     public function sendData($data)
     {
-        $response = $this->sagepay->capturePayment(
-            ['amount'   => array_get($data, 'amount', [])],
-            array_get($data, 'paymentMethodId')
-        );
+        return $this->response = new CompletePurchaseResponse($this, $data);
+    }
 
-        return $this->response = new CompletePurchaseResponse($this, $response);
+    /**
+     * Validate precheck request and interrupt process with just 'OK' if it is passed
+     *
+     * @param \Symfony\Component\HttpFoundation\ParameterBag $requestData
+     */
+    protected function validatePrecheckRequest(ParameterBag $requestData)
+    {
+        if ($requestData->has('EDP_BILL_NO') &&
+            $requestData->has('EDP_AMOUNT') &&
+            $requestData->get('EDP_PRECHECK') == 'YES' &&
+            $requestData->get('EDP_REC_ACCOUNT') == $this->getAccountId()) {
+            die('OK');
+        }
+    }
+
+    /**
+     * Validate request and return data, merchant has to echo with just 'OK' at the end
+     *
+     * @param \Symfony\Component\HttpFoundation\ParameterBag $requestData
+     *
+     * @return array
+     */
+    protected function validateRequest(ParameterBag $requestData)
+    {
+        // Check if request is precheck or final
+        $this->validatePrecheckRequest($requestData);
+
+        $data = $requestData->all();
+        $data['success'] = false;
+
+        // Check for required request data
+        if ($requestData->has('EDP_PAYER_ACCOUNT') &&
+            $requestData->has('EDP_BILL_NO') &&
+            $requestData->has('EDP_REC_ACCOUNT') &&
+            $requestData->has('EDP_AMOUNT') &&
+            $requestData->has('EDP_TRANS_ID') &&
+            $requestData->has('EDP_CHECKSUM')) {
+
+            // Generate string to hash for verification
+            $txtToHash = $this->getAccountId().':'.
+                $requestData->get('EDP_AMOUNT').':'.
+                $this->getSecretKey().':'.
+                $requestData->get('EDP_BILL_NO').':'.
+                $requestData->get('EDP_PAYER_ACCOUNT').':'.
+                $requestData->get('EDP_TRANS_ID').':'.
+                $requestData->get('EDP_TRANS_DATE');
+
+            // Check hash against checksum and set success status
+            $data['success'] = strtoupper($requestData->get('EDP_CHECKSUM')) == strtoupper(md5($txtToHash));
+        }
+
+        return $data;
     }
 }

@@ -4,26 +4,21 @@ namespace Omnipay\SagePay\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RedirectResponseInterface;
-use Omnipay\SagePay\Helpers\ParametersTrait;
 
 /**
- * SagePay Purchase Response
+ * Class PurchaseResponse
+ * @package Omnipay\SagePay\Message
  */
 class PurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
-    use ParametersTrait;
-
     /**
-     * Get redirect status
-     * @return bool
+     * Gateway endpoint
+     * @var string
      */
-    public function isRedirect()
-    {
-        return true;
-    }
+    protected $endpoint = 'https://paynow.sagepay.co.za/site/paynow.aspx';
 
     /**
-     * Get successful status
+     * Set successful to false, as transaction is not completed yet
      * @return bool
      */
     public function isSuccessful()
@@ -32,56 +27,38 @@ class PurchaseResponse extends AbstractResponse implements RedirectResponseInter
     }
 
     /**
-     * Get pending status
+     * Mark purchase as redirect type
      * @return bool
      */
-    public function isPending()
+    public function isRedirect()
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get redirect Url
+     * Get redirect URL
      * @return string
      */
     public function getRedirectUrl()
     {
-        return $this->data->getConfirmation()->confirmationUrl;
+        return $this->endpoint;
     }
 
     /**
-     * Get TransactionId
+     * Get redirect method
      * @return string
      */
-    public function getTransactionId()
+    public function getRedirectMethod()
     {
-        return $this->data->getId();
+        return 'POST';
     }
 
     /**
-     * Get
-     * @return null|string
-     */
-    public function getTransactionReference()
-    {
-        return $this->getTransactionId();
-    }
-
-    /**
-     * Gets the redirect form data array, if the redirect method is POST.
-     * @return array
+     * Get redirect data
+     * @return array|mixed
      */
     public function getRedirectData()
     {
         return $this->data;
-    }
-
-    /**
-     * Get Message
-     * @return null|string
-     */
-    public function getMessage()
-    {
-        return $this->data->getDescription();
     }
 }
