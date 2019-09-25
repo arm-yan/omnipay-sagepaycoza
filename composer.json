@@ -1,0 +1,30 @@
+{
+    "name": "armyan/omnipay-sagepaycoza",
+    "type": "library",
+    "description": "SagePay.co.za driver for the Omnipay Laravel Payment processing library",
+    "keywords": [
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment",
+        "sagepay",
+        "purchase"
+    ],
+    "homepage": "https://github.com/arm-yan/omnipay-sagepaycoza",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Arman Karapetyan",
+            "email": "arm.karapetyan@outlook.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Omnipay\\SagePayCoza\\": "src/"
+        }
+    },
+    "require": {
+        "omnipay/common": "^3"
+    }
+}
