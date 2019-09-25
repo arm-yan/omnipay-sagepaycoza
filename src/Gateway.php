@@ -9,7 +9,8 @@ use Omnipay\SagePay\Message\PurchaseRequest;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 /**
- * Braintree Gateway
+ * Class Gateway
+ * @package Omnipay\SagePay
  */
 class Gateway extends AbstractGateway
 {
