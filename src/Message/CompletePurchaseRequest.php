@@ -38,7 +38,7 @@ class CompletePurchaseRequest extends PurchaseRequest
      */
     protected function validatePrecheckRequest(ParameterBag $requestData)
     {
-        if ($requestData->has('Reference') &&
+        if ($requestData->has('RequestTrace') &&
             $requestData->has('Amount')) {
             die('OK');
         }
@@ -65,8 +65,8 @@ class CompletePurchaseRequest extends PurchaseRequest
             $requestData->has('RequestTrace')) {
 
 
-            // Check hash against checksum and set success status
-            $data['success'] = true;
+            if($requestData->has('TransactionAccepted') && $requestData->get('TransactionAccepted') == true)
+                $data['success'] = true;
         }
 
         return $data;

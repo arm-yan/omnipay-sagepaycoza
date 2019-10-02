@@ -1,136 +1,230 @@
 <?php
 
-namespace Omnipay\SagePay;
+namespace App\Gateways;
 
-use Omnipay\Common\Http\ClientInterface;
-use Omnipay\Common\AbstractGateway;
-use Omnipay\SagePay\Message\CompletePurchaseRequest;
-use Omnipay\SagePay\Message\PurchaseRequest;
-use Symfony\Component\HttpFoundation\Request as HttpRequest;
+use App;
+use Exception;
+use Illuminate\Support\Arr;
+use Omnipay\Common\Message\ResponseInterface;
+use Omnipay\Omnipay;
+use Ptuchik\Billing\Contracts\Billable;
+use Ptuchik\Billing\Contracts\PaymentGateway;
+use Ptuchik\Billing\Models\Order;
+use Ptuchik\Billing\Models\Plan;
+use Ptuchik\Billing\Models\Subscription;
+use Ptuchik\Billing\Factory as BillingFactory;
+use Ptuchik\Billing\Models\PaymentMethod;
 
 /**
- * Class Gateway
- * @package Omnipay\SagePay
+ * Class SagePay
+ * @package App\Gateways
  */
-class Gateway extends AbstractGateway
+class SagePay implements PaymentGateway
 {
+    public $name = 'SagePay';
+
     /**
-     * Get name
-     * @return string
+     * @var \Omnipay\Common\GatewayInterface
      */
-    public function getName()
+    protected $gateway;
+
+    /**
+     * @var array
+     */
+    protected $config;
+
+    /**
+     * @var \App\User
+     */
+    protected $user;
+
+    /**
+     * Gateway currency
+     * @var string
+     */
+    protected $currency = 'ZAR';
+
+    /**
+     * SagePay constructor.
+     *
+     * @param \Ptuchik\Billing\Contracts\Billable $user
+     * @param array                               $config
+     */
+    public function __construct(Billable $user, array $config = [])
     {
-        return 'SagePay';
+        $this->user = $user;
+        $this->config = $config;
+        $this->gateway = Omnipay::create(Arr::get($this->config, 'driver'));
+        $this->setCredentials();
     }
 
     /**
-     * Gateway constructor.
+     * Set credentials
      *
-     * @param \Omnipay\Common\Http\ClientInterface|null      $httpClient
-     * @param \Symfony\Component\HttpFoundation\Request|null $httpRequest
+     * @return void
      */
-    public function __construct(ClientInterface $httpClient = null, HttpRequest $httpRequest = null)
+    protected function setCredentials()
     {
-        parent::__construct($httpClient, $httpRequest);
+        $this->gateway->setVendorKey(Arr::get($this->config, 'vendorKey'));
+        $this->gateway->setAccountId(Arr::get($this->config, 'accountId'));
+        $this->gateway->setServiceKey(Arr::get($this->config, 'serviceKey'));
+
     }
 
     /**
-     * Get default parameters
-     * @return array|\Illuminate\Config\Repository|mixed
-     */
-    public function getDefaultParameters()
-    {
-        return [
-            'serviceKey' => '',
-            'vendorKey' => '24ade73c-98cf-47b3-99be-cc7b867b3080',
-        ];
-    }
-
-    /**
-     * Sets the request account ID.
+     * Purchase
      *
-     * @param string $value
+     * @param                                    $amount
+     * @param string|null                        $description
+     * @param \Ptuchik\Billing\Models\Order|null $order
      *
-     * @return $this
+     * @return \Omnipay\Common\Message\ResponseInterface
      */
-    public function setAccountId($value)
+    public function purchase($amount, string $description = null, Order $order = null) : ResponseInterface
     {
-        return $this->setParameter('accountId', $value);
-    }
-
-    /**
-     * Get the request account ID.
-     * @return mixed
-     */
-    public function getAccountId()
-    {
-        return $this->getParameter('accountId');
-    }
-
-    /**
-     * Sets the request Pay Now Service Key.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setServiceKey($value)
-    {
-        return $this->setParameter('serviceKey', $value);
-    }
-
-    /**
-     * Get the request Pay Now Service Key.
-     * @return mixed
-     */
-    public function getServiceKey()
-    {
-        return $this->getParameter('serviceKey');
-    }
-
-    /**
-     * Sets the request Pay Now Vendor Key.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setVendorKey($value)
-    {
-        return $this->setParameter('vendorKey', $value);
-    }
-
-    /**
-     * Get the request Pay Now Vendor Key.
-     * @return mixed
-     */
-    public function getVendorKey()
-    {
-        return $this->getParameter('vendorKey');
-    }
+        $purchaseData = $this->gateway->purchase();
 
 
-    /**
-     * Create a purchase request
-     *
-     * @param array $options
-     *
-     * @return \Omnipay\Common\Message\AbstractRequest|\Omnipay\Common\Message\RequestInterface
-     */
-    public function purchase(array $options = array())
-    {
-        return $this->createRequest(PurchaseRequest::class, $options);
+        // Set transaction ID from $order if provided
+        if ($order) {
+            $purchaseData->setTransactionId($order->id);
+        }
+
+        // Set amount
+        $purchaseData->setAmount($amount);
+
+        // Set description
+        if ($order && (($reference = $order->reference) instanceof Plan || $reference instanceof Subscription)) {
+            $purchaseData->setDescription($reference->name);
+        } else {
+            $purchaseData->setDescription($description);
+        }
+
+        // Finally charge user and return the gateway purchase response
+        return $purchaseData->send();
     }
 
     /**
      * Complete purchase
-     *
-     * @param array $options
-     *
-     * @return \Omnipay\Common\Message\AbstractRequest|\Omnipay\Common\Message\RequestInterface
+     * @return \Omnipay\Common\Message\ResponseInterface
      */
-    public function completePurchase(array $options = array())
+    public function completePurchase()
     {
-        return $this->createRequest(CompletePurchaseRequest::class, $options);
+        return $this->gateway->completePurchase()->send();
+    }
+
+    /**
+     * @param string                             $nonce
+     * @param \Ptuchik\Billing\Models\Order|null $order
+     *
+     * @return mixed|void
+     * @throws Exception
+     */
+    public function createPaymentMethod(string $nonce, Order $order = null)
+    {
+        return;
+    }
+
+    /**
+     * Parse Payment Method
+     *
+     * @param $paymentData
+     *
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    public function parsePaymentMethod($paymentData)
+    {
+        $paymentMethod = BillingFactory::get(PaymentMethod::class, true);
+        $paymentMethod->token = '';
+        $paymentMethod->type = $this->name;
+        $paymentMethod->last4 = '';
+        $paymentMethod->gateway = $this->name;
+
+        return $paymentMethod;
+    }
+
+    /**
+     * Get payment methods
+     * @return array
+     */
+    public function getPaymentMethods() : array
+    {
+        return [];
+    }
+
+    /**
+     * Not supported
+     *
+     * @param string $token
+     *
+     * @return mixed|void
+     */
+    public function setDefaultPaymentMethod(string $token)
+    {
+        return;
+    }
+
+    /**
+     * Not supported
+     *
+     * @param string $token
+     *
+     * @return mixed|void
+     */
+    public function deletePaymentMethod(string $token)
+    {
+        return;
+    }
+
+    /**
+     * Get payment method from last success transaction of provided user
+     * @return mixed|void
+     */
+    public function createPaymentProfile()
+    {
+        return;
+    }
+
+    /**
+     * Not supported
+     * @return mixed|void
+     */
+    public function findCustomer()
+    {
+        return;
+    }
+
+    /**
+     * Not supported
+     * @return mixed|void
+     */
+    public function getPaymentToken()
+    {
+        return;
+    }
+
+    /**
+     * @param string $reference
+     *
+     * @return mixed|string
+     */
+    public function void(string $reference)
+    {
+        return;
+    }
+
+    /**
+     * ReversePayment Payment
+     *
+     * @param string $reference
+     *
+     * @return mixed|string
+     * @throws \Exception
+     */
+    public function refund(string $reference)
+    {
+        return;
     }
 }
