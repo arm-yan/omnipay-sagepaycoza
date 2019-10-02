@@ -25,7 +25,7 @@ class CompletePurchaseResponse extends AbstractResponse
      */
     public function getTransactionId()
     {
-        return array_get($this->data, 'RequestTrace');
+        return array_get($this->data, 'Reference');
     }
 
     /**
@@ -34,6 +34,6 @@ class CompletePurchaseResponse extends AbstractResponse
      */
     public function getTransactionReference()
     {
-        return array_get($this->data, 'Reference');
+        return array_get($this->data, 'RequestTrace');
     }
 }
