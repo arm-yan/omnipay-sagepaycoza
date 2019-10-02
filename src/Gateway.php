@@ -41,51 +41,9 @@ class Gateway extends AbstractGateway
     public function getDefaultParameters()
     {
         return [
-            'accountId' => '',
-            'secretKey' => '',
+            'serviceKey' => '',
+            'vendorKey' => '24ade73c-98cf-47b3-99be-cc7b867b3080',
         ];
-    }
-
-    /**
-     * Sets the request language.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setLanguage($value)
-    {
-        return $this->setParameter('language', $value);
-    }
-
-    /**
-     * Get the request language.
-     * @return $this
-     */
-    public function getLanguage()
-    {
-        return $this->getParameter('language');
-    }
-
-    /**
-     * Sets the request description.
-     *
-     * @param string $value
-     *
-     * @return $this
-     */
-    public function setDescription($value)
-    {
-        return $this->setParameter('description', $value);
-    }
-
-    /**
-     * Get the request description.
-     * @return $this
-     */
-    public function getDescription()
-    {
-        return $this->getParameter('description');
     }
 
     /**
@@ -110,67 +68,47 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * Sets the request secret key.
+     * Sets the request Pay Now Service Key.
      *
      * @param string $value
      *
      * @return $this
      */
-    public function setSecretKey($value)
+    public function setServiceKey($value)
     {
-        return $this->setParameter('secretKey', $value);
+        return $this->setParameter('serviceKey', $value);
     }
 
     /**
-     * Get the request secret key.
+     * Get the request Pay Now Service Key.
      * @return mixed
      */
-    public function getSecretKey()
+    public function getServiceKey()
     {
-        return $this->getParameter('secretKey');
+        return $this->getParameter('serviceKey');
     }
 
     /**
-     * Sets the request email.
+     * Sets the request Pay Now Vendor Key.
      *
      * @param string $value
      *
      * @return $this
      */
-    public function setEmail($value)
+    public function setVendorKey($value)
     {
-        return $this->setParameter('email', $value);
+        return $this->setParameter('vendorKey', $value);
     }
 
     /**
-     * Get the request email
+     * Get the request Pay Now Vendor Key.
      * @return mixed
      */
-    public function getEmail()
+    public function getVendorKey()
     {
-        return $this->getParameter('email');
+        return $this->getParameter('vendorKey');
     }
 
-    /**
-     * Set custom data to get back as is
-     *
-     * @param array $value
-     *
-     * @return $this
-     */
-    public function setCustomData(array $value)
-    {
-        return $this->setParameter('customData', $value);
-    }
-
-    /**
-     * Get custom data
-     * @return mixed
-     */
-    public function getCustomData()
-    {
-        return $this->getParameter('customData', []);
-    }
 
     /**
      * Create a purchase request
