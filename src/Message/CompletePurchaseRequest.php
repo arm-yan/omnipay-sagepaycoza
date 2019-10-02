@@ -35,13 +35,12 @@ class CompletePurchaseRequest extends PurchaseRequest
      * Validate precheck request and interrupt process with just 'OK' if it is passed
      *
      * @param \Symfony\Component\HttpFoundation\ParameterBag $requestData
+     *
+     * @return array;
      */
     protected function validatePrecheckRequest(ParameterBag $requestData)
     {
-        if ($requestData->has('RequestTrace') &&
-            $requestData->has('Amount')) {
-            die('OK');
-        }
+        return [];
     }
 
     /**
