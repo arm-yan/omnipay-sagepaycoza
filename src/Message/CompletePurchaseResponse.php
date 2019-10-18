@@ -1,12 +1,12 @@
 <?php
 
-namespace Omnipay\SagePay\Message;
+namespace Omnipay\SagePayCoZa\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 
 /**
  * Class CompletePurchaseResponse
- * @package Omnipay\SagePay\Message
+ * @package Omnipay\SagePayCoZa\Message
  */
 class CompletePurchaseResponse extends AbstractResponse
 {

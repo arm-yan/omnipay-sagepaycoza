@@ -1,12 +1,12 @@
 <?php
 
-namespace Omnipay\SagePay\Message;
+namespace Omnipay\SagePayCoZa\Message;
 
 use Omnipay\Common\Message\AbstractRequest;
 
 /**
  * Class PurchaseRequest
- * @package Omnipay\SagePay\Message
+ * @package Omnipay\SagePayCoZa\Message
  */
 class PurchaseRequest extends AbstractRequest
 {
@@ -229,7 +229,7 @@ class PurchaseRequest extends AbstractRequest
      *
      * @param mixed $data
      *
-     * @return \Omnipay\Common\Message\ResponseInterface|\Omnipay\SagePay\Message\PurchaseResponse
+     * @return \Omnipay\Common\Message\ResponseInterface|\Omnipay\SagePayCoZa\Message\PurchaseResponse
      */
     public function sendData($data)
     {

@@ -1,16 +1,16 @@
 <?php
 
-namespace Omnipay\SagePay;
+namespace Omnipay\SagePayCoZa;
 
 use Omnipay\Common\Http\ClientInterface;
 use Omnipay\Common\AbstractGateway;
-use Omnipay\SagePay\Message\CompletePurchaseRequest;
-use Omnipay\SagePay\Message\PurchaseRequest;
+use Omnipay\SagePayCoZa\Message\CompletePurchaseRequest;
+use Omnipay\SagePayCoZa\Message\PurchaseRequest;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
 
 /**
  * Class Gateway
- * @package Omnipay\SagePay
+ * @package Omnipay\SagePayCoZa
  */
 class Gateway extends AbstractGateway
 {

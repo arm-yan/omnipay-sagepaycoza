@@ -1,12 +1,12 @@
 <?php
 
-namespace Omnipay\SagePay\Message;
+namespace Omnipay\SagePayCoZa\Message;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
  * Class CompletePurchaseRequest
- * @package Omnipay\SagePay\Message
+ * @package Omnipay\SagePayCoZa\Message
  */
 class CompletePurchaseRequest extends PurchaseRequest
 {
@@ -24,7 +24,7 @@ class CompletePurchaseRequest extends PurchaseRequest
      *
      * @param mixed $data
      *
-     * @return \Omnipay\Common\Message\ResponseInterface|\Omnipay\SagePay\Message\CompletePurchaseResponse
+     * @return \Omnipay\Common\Message\ResponseInterface|\Omnipay\SagePayCoZa\Message\CompletePurchaseResponse
      */
     public function sendData($data)
     {
@@ -64,7 +64,7 @@ class CompletePurchaseRequest extends PurchaseRequest
             $requestData->has('RequestTrace')) {
 
 
-            if($requestData->has('TransactionAccepted') && $requestData->get('TransactionAccepted') == true)
+            if($requestData->has('TransactionAccepted') && $requestData->get('TransactionAccepted') === true)
                 $data['success'] = true;
         }
 

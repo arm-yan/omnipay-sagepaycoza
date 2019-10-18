@@ -1,13 +1,13 @@
 <?php
 
-namespace Omnipay\SagePay\Message;
+namespace Omnipay\SagePayCoZa\Message;
 
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RedirectResponseInterface;
 
 /**
  * Class PurchaseResponse
- * @package Omnipay\SagePay\Message
+ * @package Omnipay\SagePayCoZa\Message
  */
 class PurchaseResponse extends AbstractResponse implements RedirectResponseInterface
 {
