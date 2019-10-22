@@ -7,6 +7,7 @@ use Omnipay\Common\AbstractGateway;
 use Omnipay\SagePayCoZa\Message\CompletePurchaseRequest;
 use Omnipay\SagePayCoZa\Message\PurchaseRequest;
 use Symfony\Component\HttpFoundation\Request as HttpRequest;
+use GuzzleHttp\Client;
 
 /**
  * Class Gateway
@@ -14,6 +15,9 @@ use Symfony\Component\HttpFoundation\Request as HttpRequest;
  */
 class Gateway extends AbstractGateway
 {
+
+    const TRACE_URL = 'https://ws.netcash.co.za/PayNow/TransactionStatus/Check';
+
     /**
      * Get name
      * @return string
@@ -42,7 +46,7 @@ class Gateway extends AbstractGateway
     {
         return [
             'serviceKey' => '',
-            'vendorKey' => '24ade73c-98cf-47b3-99be-cc7b867b3080',
+            'vendorKey'  => '24ade73c-98cf-47b3-99be-cc7b867b3080',
         ];
     }
 
@@ -109,7 +113,6 @@ class Gateway extends AbstractGateway
         return $this->getParameter('vendorKey');
     }
 
-
     /**
      * Create a purchase request
      *
@@ -132,5 +135,27 @@ class Gateway extends AbstractGateway
     public function completePurchase(array $options = array())
     {
         return $this->createRequest(CompletePurchaseRequest::class, $options);
+    }
+
+    /**
+     * Check order status
+     *
+     * @param string $trace
+     *
+     * @return mixed
+     */
+    public function checkOrderStatus(string $trace)
+    {
+        $client = new Client();
+        $params = $this->getDefaultParameters();
+        $response = $client->get(self::TRACE_URL, [
+            'query' => [
+                'RequestTrace' => $trace
+            ]
+        ]);
+
+        $responseBody = json_decode($response->getBody(), true);
+
+        return $responseBody;
     }
 }
