@@ -16,7 +16,7 @@ use GuzzleHttp\Client;
 class Gateway extends AbstractGateway
 {
 
-    const TRACE_URL = 'https://ws.netcash.co.za/PayNow/TransactionStatus/Check';
+    const TRACE_URL = 'https://ws.sagepay.co.za/PayNow/TransactionStatus/Check';
 
     /**
      * Get name
