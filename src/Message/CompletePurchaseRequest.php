@@ -64,7 +64,7 @@ class CompletePurchaseRequest extends PurchaseRequest
             $requestData->has('RequestTrace')) {
 
 
-            if($requestData->has('TransactionAccepted') && $requestData->get('TransactionAccepted') === true)
+            if($requestData->has('TransactionAccepted') && $requestData->get('TransactionAccepted') == "true")
                 $data['success'] = true;
         }
 
